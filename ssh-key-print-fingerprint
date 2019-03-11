@@ -1,0 +1,5 @@
+#!/bin/sh
+# Show fingerprint of specified public key file. Private RSA1 keys are also supported. 
+# For RSA and DSA keys ssh-keygen tries to find the matching public key file and prints its fingerprint.
+
+ssh-keygen -v -l -f $1
