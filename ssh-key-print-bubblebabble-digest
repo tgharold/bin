@@ -1,0 +1,4 @@
+#!/bin/sh
+# Show the bubblebabble digest of specified private or public key file
+
+ssh-keygen -v -B -f $1
