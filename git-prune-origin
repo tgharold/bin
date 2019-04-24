@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# This makes some assumptions about:
+# - Which branches you want to keep (egrep -v line)
+# - That it's safe to delete branches from the "origin" remote
+
+BRANCH=beta
+
+git branch --remote --merged origin/$BRANCH | \
+  egrep -v "(development|preview|master)" | \
+  grep "origin/" | \
+  sed 's/origin\///g' | \
+  xargs -n1 git push origin --delete
+
