@@ -7,7 +7,7 @@
 BRANCH=beta
 
 git branch --remote --merged origin/$BRANCH | \
-  egrep -v "(development|preview|master)" | \
+  egrep -v "(development|preview|master|beta)" | \
   grep "origin/" | \
   sed 's/origin\///g' | \
   xargs -n1 git push origin --delete

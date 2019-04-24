@@ -6,5 +6,5 @@
 BRANCH=beta
 
 git branch --merged $BRANCH | \
-  egrep -v "(development|preview|master)" | \
+  egrep -v "(development|preview|master|beta)" | \
   xargs -n 1 git branch -d
