@@ -1,0 +1,6 @@
+#!/bin/sh
+
+BRANCH=master
+
+git pull --tags origin "${BRANCH}"
+git push origin "${BRANCH}:${BRANCH}"
