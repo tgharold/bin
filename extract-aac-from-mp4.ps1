@@ -43,20 +43,10 @@ param (
     [Parameter(Position = 1, Mandatory = $True)][ValidateNotNullorEmpty()][string]$OutPutPath
 )
 
-if (!(Test-Path $InputPath)) {
-    Write-Error "InputPath '$($InputPath)' does not exist."
-    exit 1
-}
-
-if (!(Test-Path $OutPutPath)) {
-    Write-Error "OutPutPath '$($OutPutPath)' does not exist."
-    exit 1
-}
-
 Function Test-CommandExistsOrStop {
     Param (
         $command
-        )
+    )
     $oldPreference = $ErrorActionPreference
     $ErrorActionPreference = ‘stop’
     try {
@@ -73,11 +63,46 @@ Function Test-CommandExistsOrStop {
     }
 }
 
+function Test-PathOrStop {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$ParameterName,
+        [Parameter(Mandatory = $true)]
+        [string]$FilePath
+    )
+    if (!(Test-Path $InputPath)) {
+        Write-Error "$($ParameterName): '$($InputPath)' does not exist."
+        exit 1
+    }
+}
+
+function Get-MP4Metadata {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$FilePath
+    )
+
+    Test-CommandExistsOrStop $FFProbeCommand
+    $json = & $FFProbeCommand -v quiet -print_format json -show_format -show_streams $FilePath 
+
+    $metadata = ConvertFrom-Json $json
+
+    return $metadata
+}
+
 #--------------------------------------------------------------
 
+Write-Host "Validating that the paths exist..."
+Test-PathOrStop -ParameterName "InputPath" -FilePath $InputPath
+Test-PathOrStop -ParameterName "OutPutPath" -FilePath $OutPutPath
+
 Write-Host "Validating that the ffmpeg tooling is installed..."
-$ffprobe = 'ffprobe'
-Test-CommandExistsOrStop $ffprobe
-$ffmpeg = 'ffmpeg'
-Test-CommandExistsOrStop $ffmpeg
+$FFProbeCommand = 'ffprobe'
+Test-CommandExistsOrStop $FFProbeCommand
+$FFMPEGCommand = 'ffmpeg'
+Test-CommandExistsOrStop $FFMPEGCommand
+
+$MP4FileList = Get-ChildItem $InputPath -Filter *.mp4
+Write-Host "Found $($MP4FileList.Count) *.mp4 files."
+
 
