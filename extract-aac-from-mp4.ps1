@@ -11,11 +11,6 @@ during the past month and generates a report.
 .PARAMETER InputPath
 Specifies the path to the CSV-based input file.
 
-.PARAMETER OutputPath
-Specifies the name and path for the CSV-based output file. By default,
-MonthlyUpdates.ps1 generates a name from the date and time it runs, and
-saves the output in the local directory.
-
 .INPUTS
 
 None. You cannot pipe objects to Update-Month.ps1.
@@ -34,20 +29,14 @@ PS> .\Update-Month.ps1 -inputpath C:\Data\January.csv
 
 .EXAMPLE
 
-PS> .\Update-Month.ps1 -inputpath C:\Data\January.csv -outputPath `
-C:\Reports\2009\January.csv
+PS> .\Update-Month.ps1 -inputpath C:\Data\January.csv 
 #>
 
 param (
     [Parameter(Position = 0, Mandatory = $True)]
     [ValidateNotNullorEmpty()]
     [string]
-    $InputPath, 
-
-    [Parameter(Position = 1, Mandatory = $True)]
-    [ValidateNotNullorEmpty()]
-    [string]
-    $OutPutPath,
+    $ProcessingPath, 
 
     [parameter(Mandatory=$false)]
     [ValidateRange(1, [int]::MaxValue)]
@@ -82,8 +71,8 @@ function Test-PathOrStop {
         [Parameter(Mandatory = $true)]
         [string]$FilePath
     )
-    if (!(Test-Path $InputPath)) {
-        Write-Error "$($ParameterName): '$($InputPath)' does not exist."
+    if (!(Test-Path $ProcessingPath)) {
+        Write-Error "$($ParameterName): '$($ProcessingPath)' does not exist."
         exit 1
     }
 }
@@ -109,9 +98,8 @@ function Get-MP4Metadata {
 
 #--------------------------------------------------------------
 
-Write-Host "Validating that the paths exist..."
-Test-PathOrStop -ParameterName "InputPath" -FilePath $InputPath
-Test-PathOrStop -ParameterName "OutPutPath" -FilePath $OutPutPath
+Write-Host "Validating that the processing path exists..."
+Test-PathOrStop -ParameterName "ProcessingPath" -FilePath $ProcessingPath
 
 Write-Host "Validating that the ffmpeg tooling is installed..."
 $FFProbeCommand = 'ffprobe'
@@ -119,7 +107,7 @@ Test-CommandExistsOrStop $FFProbeCommand
 $FFMPEGCommand = 'ffmpeg'
 Test-CommandExistsOrStop $FFMPEGCommand
 
-$MP4FileList = Get-ChildItem $InputPath -Filter *.mp4
+$MP4FileList = Get-ChildItem $ProcessingPath -Filter *.mp4
 Write-Host "Found $($MP4FileList.Count) *.mp4 files."
 
 if ($Sample) {
@@ -151,7 +139,7 @@ foreach ($mp4File in $MP4FileList) {
     $aacStreams = $audioStreams | Where-Object -Property codec_name -EQ 'aac'
     if ($aacStreams.Count -EQ 1) {
         $aacStream = $aacStreams[0]
-        Write-Host $aacStream
+        #Write-Host $aacStream
         $aacFilePath = [System.IO.Path]::ChangeExtension($mp4File, ".m4a")
         Write-Host $aacFilePath
 
@@ -169,7 +157,7 @@ foreach ($mp4File in $MP4FileList) {
             }
     
             Write-Verbose "Extract stream ($($streamIndex)) to $($aacFilePath)"
-            & $FFMPEGCommand -i "$($mp4File.FullName)" -map "0:$($streamIndex)" -c copy "$($aacFilePath)"
+            & $FFMPEGCommand -v quiet -stats -i "$($mp4File.FullName)" -map "0:$($streamIndex)" -c copy "$($aacFilePath)"
     
             # ffmpeg -i input-video.avi -vn -acodec copy output-audio.aac
             # ffmpeg -i input.mkv -map 0:a:3 -c copy output.m4a
