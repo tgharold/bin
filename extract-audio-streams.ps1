@@ -191,8 +191,8 @@ foreach ($file in $fileList) {
             $thumbnailWidth = "600"
             $thumbnailHeight = "600"
             # Pad the image: pad=$($thumbnailWidth):$($thumbnailHeight):-1:-1:$($paddingColor)
-            #$paddingColor = "000000"
-            & $FFMPEGCommand -v warning -stats -ss 00:00:15 -i "$($file.FullName)" -frames:v 1 -an -update true -vf "thumbnail,scale=$($thumbnailWidth):$($thumbnailHeight):force_original_aspect_ratio=decrease,setsar=1" "$($thumbnailFileName)"
+            $paddingColor = "000000"
+            & $FFMPEGCommand -v warning -stats -ss 00:00:15 -i "$($file.FullName)" -frames:v 1 -an -update true -vf "thumbnail,scale=$($thumbnailWidth):$($thumbnailHeight):force_original_aspect_ratio=decrease,pad=$($thumbnailWidth):$($thumbnailHeight):-1:-1:$($paddingColor),setsar=1" "$($thumbnailFileName)"
         } else {
             Write-Verbose "Single frame image exists: $($thumbnailFileName)"
         }
