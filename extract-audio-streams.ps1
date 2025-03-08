@@ -168,6 +168,20 @@ foreach ($file in $fileList) {
         $audioStreams = $streams | Where-Object -Property codec_type -EQ 'audio'
         Write-Verbose "Found $($audioStreams.Count) audio streams."
 
+        # Notes:
+        # - Try to put -ss -t before the -i mp3. When -ss used as an output option (after -i), 
+        # ffmpeg would discard input until the timestamps reach position. https://superuser.com/a/1542741
+        # - Extract single frame
+        # ffmpeg -i input_video.mp4 -ss 00:00:05 -vframes 1 frame_out.jpg
+        $thumbnailFileName = [System.IO.Path]::ChangeExtension($baseFileName, '.jpg')
+        $thumbnailFileName = Join-Path -Path $OutputPath -ChildPath $thumbnailFileName
+        if (!(Test-Path -PathType Leaf -LiteralPath $thumbnailFileName)) {
+            Write-Verbose "Extract single frame to $($thumbnailFileName)"
+            & $FFMPEGCommand -v warning -stats -ss 00:00:15 -i "$($file.FullName)" -frames:v 1 -an -vf "thumbnail,setsar=1" "$($thumbnailFileName)"
+        } else {
+            Write-Verbose "Single frame image exists: $($thumbnailFileName)"
+        }
+
         foreach ($stream in $audioStreams) {
             Write-Debug "  audio stream($($stream.index)): $($stream.codec_name) codec_type=$($stream.codec_type) bit_rate=$($stream.bit_rate) sample_rate=$($stream.sample_rate)"
 
@@ -193,7 +207,7 @@ foreach ($file in $fileList) {
                 & $FFMPEGCommand -v quiet -stats -i "$($file.FullName)" -map "0:$($streamIndex)" -c copy "$($outputFileName)"
 
             } else {
-                Write-Verbose "Skipping, file exists."
+                Write-Verbose "Skipping, file exists: $($outputFileName)"
             }
         }
     }
