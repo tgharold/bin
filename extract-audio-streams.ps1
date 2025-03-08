@@ -49,7 +49,11 @@ param (
     [parameter(Mandatory=$false)]
     [ValidateRange(1, [int]::MaxValue)]
     [int]
-    $Sample
+    $Sample,
+
+    [parameter(Mandatory=$false)]
+    [switch]
+    $JSON
 )
 
 Function Test-CommandExistsOrStop {
@@ -153,15 +157,14 @@ foreach ($file in $fileList) {
     $mediaMetadata = Get-MediaMetadata $file.FullName
 
     if ($null -ne $mediaMetadata) {
-        $baseFileName = Split-Path -Path $file -Leaf
-        $baseFileName = [System.IO.Path]::ChangeExtension($baseFileName, $null)
         Write-Host $baseFileName
 
+        if ($JSON) {
         $jsonFileName = [System.IO.Path]::ChangeExtension($baseFileName, "json")
-        Write-Verbose "JSON file: $($jsonFileName)"
         $jsonFileName = Join-Path -Path $OutputPath -ChildPath $jsonFileName
-        Write-Verbose "JSON file: $($jsonFileName)"
+            Write-Verbose "JSON path: $($jsonFileName)"
         $mediaMetadata | ConvertTo-Json -depth 10 | Out-File -Encoding utf8NoBOM -LiteralPath $jsonFileName
+        }
     
         $streams = $mediaMetadata.streams
         Write-Verbose "Found $($streams.Count) streams."
