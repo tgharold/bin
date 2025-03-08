@@ -143,7 +143,9 @@ Test-CommandExistsOrStop $FFProbeCommand
 $FFMPEGCommand = 'ffmpeg'
 Test-CommandExistsOrStop $FFMPEGCommand
 
-$fileList = Get-ChildItem $InputPath -File
+
+$wildcards = @(".avi",".mp4")
+$fileList = Get-ChildItem $InputPath -File | Where-Object { $_.Extension -in $wildcards }
 Write-Host "Found $($fileList.Count) files."
 
 if ($Sample) {
