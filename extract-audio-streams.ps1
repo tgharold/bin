@@ -143,6 +143,9 @@ Test-CommandExistsOrStop $FFProbeCommand
 $FFMPEGCommand = 'ffmpeg'
 Test-CommandExistsOrStop $FFMPEGCommand
 
+Write-Host "Validating that the atomicparsley tooling is installed..."
+$AtomicParsleyCommand = 'atomicparsley'
+Test-CommandExistsOrStop $AtomicParsleyCommand
 
 $wildcards = @(".avi",".mp4")
 $fileList = Get-ChildItem $InputPath -File | Where-Object { $_.Extension -in $wildcards }
