@@ -154,8 +154,11 @@ if ($Sample) {
 foreach ($file in $fileList) {
     Write-Verbose "-----"
     Write-Verbose "File: $($file.Name)"
-    $mediaMetadata = Get-MediaMetadata $file.FullName
+    $baseFileName = Split-Path -Path $file -Leaf
+    $baseFileName = [System.IO.Path]::ChangeExtension($baseFileName, $null)
+    Write-Verbose "Base: $($baseFileName)"
 
+    $mediaMetadata = Get-MediaMetadata $file.FullName
     if ($null -ne $mediaMetadata) {
         Write-Host $baseFileName
 
