@@ -176,7 +176,7 @@ foreach ($file in $fileList) {
         # ffmpeg would discard input until the timestamps reach position. https://superuser.com/a/1542741
         # - Extract single frame
         # ffmpeg -i input_video.mp4 -ss 00:00:05 -vframes 1 frame_out.jpg
-        $thumbnailFileName = [System.IO.Path]::ChangeExtension($baseFileName, '.jpg')
+        $thumbnailFileName = [System.IO.Path]::ChangeExtension($baseFileName, 'jpg')
         $thumbnailFileName = Join-Path -Path $OutputPath -ChildPath $thumbnailFileName
         if (!(Test-Path -PathType Leaf -LiteralPath $thumbnailFileName)) {
             Write-Verbose "Extract single frame to $($thumbnailFileName)"
