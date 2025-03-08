@@ -180,10 +180,11 @@ foreach ($file in $fileList) {
         $thumbnailFileName = Join-Path -Path $OutputPath -ChildPath $thumbnailFileName
         if (!(Test-Path -PathType Leaf -LiteralPath $thumbnailFileName)) {
             Write-Verbose "Extract single frame to $($thumbnailFileName)"
-            $thumbnailWidth = "360"
-            $thumbnailHeight = "360"
-            $paddingColor = "000000"
-            & $FFMPEGCommand -v warning -stats -ss 00:00:15 -i "$($file.FullName)" -frames:v 1 -an -update true -vf "thumbnail,scale=$($thumbnailWidth):$($thumbnailHeight):force_original_aspect_ratio=decrease,pad=$($thumbnailWidth):$($thumbnailHeight):-1:-1:$($paddingColor),setsar=1" "$($thumbnailFileName)"
+            $thumbnailWidth = "600"
+            $thumbnailHeight = "600"
+            # Pad the image: pad=$($thumbnailWidth):$($thumbnailHeight):-1:-1:$($paddingColor)
+            #$paddingColor = "000000"
+            & $FFMPEGCommand -v warning -stats -ss 00:00:15 -i "$($file.FullName)" -frames:v 1 -an -update true -vf "thumbnail,scale=$($thumbnailWidth):$($thumbnailHeight):force_original_aspect_ratio=decrease,setsar=1" "$($thumbnailFileName)"
         } else {
             Write-Verbose "Single frame image exists: $($thumbnailFileName)"
         }
