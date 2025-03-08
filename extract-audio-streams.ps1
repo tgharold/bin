@@ -213,6 +213,9 @@ foreach ($file in $fileList) {
                 Write-Verbose "Extract stream ($($streamIndex)) to $($outputFileName)"
                 & $FFMPEGCommand -v quiet -stats -i "$($file.FullName)" -map "0:$($streamIndex)" -c copy "$($outputFileName)"
 
+                Write-Verbose "Add metadata with AtomicParsley ($($streamIndex)) to $($outputFileName)"
+                & $AtomicParsleyCommand "$($outputFileName)" --preventOptimizing --overWrite --title "$($baseFileName)" --artwork "$($thumbnailFileName)"
+
             } else {
                 Write-Verbose "Skipping, file exists: $($outputFileName)"
             }
